@@ -1,0 +1,26 @@
+<!-- 
+This launch file runs one IMU filter node for each applehand finger IMU. 
+It attaches the filtered nodes to a grasp adjustment detector. 
+-->
+
+<launch>
+
+	<node pkg="apple_modid_ros" name="f1_filter" type="imu_filter.py">
+		<remap from="imu_topic" to="applehand/finger1/imu" />
+		<remap from="filtered_imu_topic" to="f1_filtered_imu" />
+	</node>
+
+	<node pkg="apple_modid_ros" name="f2_filter" type="imu_filter.py">
+		<remap from="imu_topic" to="applehand/finger2/imu" />
+		<remap from="filtered_imu_topic" to="f2_filtered_imu" />
+	</node>
+
+	<node pkg="apple_modid_ros" name="f3_filter" type="imu_filter.py">
+		<remap from="imu_topic" to="applehand/finger3/imu" />
+		<remap from="filtered_imu_topic" to="f3_filtered_imu" />
+	</node>
+
+	<node pkg="apple_modid_ros" name="grasp_adjustment_detector" type="online_adjustment_detection.py">
+	</node>
+
+</launch>
