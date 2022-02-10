@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from applehand.msg import ImuNaive
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Float64
 
 class AdjustmentDetector:
 
@@ -19,7 +18,7 @@ class AdjustmentDetector:
     #changes between being within movement thresholds to without these thresholds, this 
     #will return true
     def detect_imu_changes(self, msg):
-        if abs(msg.angular_velocity.x) > self.thresh:
+        if abs(msg.data) > self.thresh:
             return False
         else:
             return True
@@ -44,9 +43,9 @@ if __name__ == '__main__':
 
     detector = AdjustmentDetector()
 
-    f1_subscriber = rospy.Subscriber('applehand/finger1/imu', ImuNaive, detector.update_f1)
-    f2_subscriber = rospy.Subscriber('applehand/finger2/imu', ImuNaive, detector.update_f2)
-    f3_subscriber = rospy.Subscriber('applehand/finger3/imu', ImuNaive, detector.update_f3)
+    f1_subscriber = rospy.Subscriber('f1_filtered_imu', Float64, detector.update_f1)
+    f2_subscriber = rospy.Subscriber('f2_filtered_imu', Float64, detector.update_f2)
+    f3_subscriber = rospy.Subscriber('f3_filtered_imu', Float64, detector.update_f3)
 
     adjustment_publisher = rospy.Publisher('grasp_adjusting', Bool, queue_size=10)
 

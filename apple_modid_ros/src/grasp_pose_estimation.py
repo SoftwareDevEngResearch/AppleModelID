@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     pose_estimator = GraspPoseEstimator()
 
-    joint_subscriber = rospy.Subscriber('wrench', WrenchStamped, pose_estimator.estimate_distance)
+    wrench_subscriber = rospy.Subscriber('wrench', WrenchStamped, pose_estimator.estimate_distance)
 
     grasp_pose_publisher = rospy.Publisher('l_estimate', Float64, queue_size=10)
     l_uncertainty_publisher = rospy.Publisher('l_disagreement', Float64, queue_size=10)
