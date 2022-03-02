@@ -4,7 +4,7 @@ import rospy
 
 import numpy as np
 
-from geometry_msgs.msg import Vector3, WrenchStamped
+from geometry_msgs.msg import Point, WrenchStamped
 from std_msgs.msg import Bool
 from copy import deepcopy
 
@@ -116,7 +116,7 @@ if __name__ == '__main__':
 	regression_object = AppleRegression()
 
 	wrench_subscriber = rospy.Subscriber('wrench', WrenchStamped, regression_object.update_force)
-	apple_position_subscriber = rospy.Subscriber('apple_position_estimate', Vector3, regression_object.update_position)
+	apple_position_subscriber = rospy.Subscriber('apple_position_estimate', Point, regression_object.update_position)
 	regression_on_checker = rospy.Subscriber('regression_trigger_topic', Bool, regression_object.check_regression)
 
 	k_publisher = rospy.Publisher('k_estimate', Vector3, queue_size=10)

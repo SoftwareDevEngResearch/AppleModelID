@@ -4,20 +4,18 @@ import rospy
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-from geometry_msgs.msg import Pose
-from geometry_msgs.msg import Vector3
+from geometry_msgs.msg import Pose, Point
 from std_msgs.msg import Float64
 
 class ApplePositionCalculator:
 
 	def __init__(self):
-		self.position = Vector3()
+		self.position = Point()
 		self.l = 0
 
 	def calculate_position(self, msg):
 		
 		try:
-			
 			r = R.from_quat([msg.orientation.x,msg.orientation.y,msg.orientation.z,msg.orientation.w])
 			z_h = r.as_dcm()[0:3,2]
 			v_hand = np.array([msg.position.x,msg.position.y,msg.position.z])
@@ -44,7 +42,7 @@ if __name__ == '__main__':
     pose_subscriber = rospy.Subscriber('pose', Pose, calculator.calculate_position)
     l_subscriber = rospy.Subscriber('l_estimate', Float64, calculator.update_l)
 
-    position_publisher = rospy.Publisher('apple_position_estimate', Vector3, queue_size=10)
+    position_publisher = rospy.Publisher('apple_position_estimate', Point, queue_size=10)
 
     while not rospy.is_shutdown():
 
