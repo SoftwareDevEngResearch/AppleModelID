@@ -6,6 +6,8 @@ import numpy as np
 
 from geometry_msgs.msg import Vector3, WrenchStamped
 from std_msgs.msg import Bool
+from copy import deepcopy
+
 
 class AppleRegression:
 
@@ -34,13 +36,22 @@ class AppleRegression:
 
 	def update_position(self,msg):
 
-		if self.running:
+		if self.running and self.is_valid(msg):
 			self.positions['x'].append(msg.x)
 			self.positions['y'].append(msg.y)
 			self.positions['z'].append(msg.z)
 
 			self.size_dict(self.positions)
 
+	
+	def is_valid(self,position): 
+
+	#the default that ROS will publish is [0,0,0] for poses. this is inside the robot, so the apple cannot be there
+		
+		if position.x == 0 and position.y == 0 and position.z == 0:
+			return False
+		else:
+			return True
 
 	def size_dict(self, dict_to_size):
 
@@ -50,18 +61,23 @@ class AppleRegression:
 
 
 	def run_regression(self):
-		
-		for key in ['x','y','z']:
-			force_data = self.forces[key]
-			position_data = self.positions[key]
-			if len(force_data) == self.chunk_size and len(position_data) == self.chunk_size:
+		if self.running:
+			for key in ['x','y','z']:
 
-				minus_k, k_q0 = np.polyfit(position_data, force_data, 1)
-				k_est = -1*minus_k
-				q0_est = k_q0/k_est
+				force_data = deepcopy(self.forces[key])
+				position_data = deepcopy(self.positions[key])
 
-				self.param_est[key] = q0_est
-				self.k_est[key] = k_est
+				if len(force_data) == self.chunk_size and len(position_data) == self.chunk_size:
+
+					minus_k, k_q0 = np.polyfit(position_data, force_data, 1)
+					k_est = -1*minus_k
+					q0_est = k_q0/k_est
+
+					self.param_est[key] = q0_est
+					self.k_est[key] = k_est
+
+					print("finished an estimate")
+
 
 	def get_publishable_values(self):
 		
@@ -81,13 +97,14 @@ class AppleRegression:
 	def check_regression(self, msg):
 
 		if msg.data:
-			if self.running = False:
+			if self.running == False:
 				self.running = True
 		else:
-			if self.running = True:
+			if self.running == True:
 				self.running = False
 				self.forces = {'x':[],'y':[],'z':[]}
 				self.positions = {'x':[],'y':[],'z':[]}
+				print("Regression reset!")
 
 
 if __name__ == '__main__':
@@ -100,16 +117,19 @@ if __name__ == '__main__':
 
 	wrench_subscriber = rospy.Subscriber('wrench', WrenchStamped, regression_object.update_force)
 	apple_position_subscriber = rospy.Subscriber('apple_position_estimate', Vector3, regression_object.update_position)
-	regression_on_checker = rospy.Subscriber('regression_trigger_topic', Bool)
+	regression_on_checker = rospy.Subscriber('regression_trigger_topic', Bool, regression_object.check_regression)
 
 	k_publisher = rospy.Publisher('k_estimate', Vector3, queue_size=10)
 	absc_layer_publisher = rospy.Publisher('abscission_joint_location', Vector3, queue_size=10)
 
 	while not rospy.is_shutdown():
 
+		regression_object.run_regression()
+
 		k_estimate, joint_loc = regression_object.get_publishable_values()
 
 		k_publisher.publish(k_estimate)
+		
 		absc_layer_publisher.publish(joint_loc)
 
 

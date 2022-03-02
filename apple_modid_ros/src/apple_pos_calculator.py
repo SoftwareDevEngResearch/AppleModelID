@@ -17,6 +17,7 @@ class ApplePositionCalculator:
 	def calculate_position(self, msg):
 		
 		try:
+			
 			r = R.from_quat([msg.orientation.x,msg.orientation.y,msg.orientation.z,msg.orientation.w])
 			z_h = r.as_dcm()[0:3,2]
 			v_hand = np.array([msg.position.x,msg.position.y,msg.position.z])
@@ -26,7 +27,7 @@ class ApplePositionCalculator:
 			self.position.y = v_apple[1]
 			self.position.z = v_apple[2]
 		except:
-			print("Did not recieve valid pose information")
+			pass #print("Did not recieve valid pose information")
 
 	def update_l(self,msg):
 		self.l = msg.data
@@ -36,9 +37,11 @@ if __name__ == '__main__':
 
     rospy.init_node('apple_pos_publisher')
 
+    print("apple position calculator online")
+
     calculator = ApplePositionCalculator()
 
-    pose_subscriber = rospy.Subscriber('ur5e_pose', Pose, calculator.calculate_position)
+    pose_subscriber = rospy.Subscriber('pose', Pose, calculator.calculate_position)
     l_subscriber = rospy.Subscriber('l_estimate', Float64, calculator.update_l)
 
     position_publisher = rospy.Publisher('apple_position_estimate', Vector3, queue_size=10)

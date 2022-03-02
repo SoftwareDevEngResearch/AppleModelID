@@ -4,19 +4,29 @@ This launch file runs the nodes necessary for performing regression with no inte
 
 <launch>
 
-	<arg name="regression_trigger" />
+	<arg name="pose_topic" default="ur5e_pose" />
+	<arg name="wrench_topic" default="wrench" />
+	<arg name="use_ur5e" default=True />
 
-	<node pkg="apple_modid_ros" name="ur5e_pose_publisher" type="ur5e_pose_publisher.py">
-	</node>
+	<group if="$(eval arg("use_ur5e"))">
+		<node pkg="apple_modid_ros" name="ur5e_pose_publisher" type="ur5e_pose_publisher.py">
+		</node>
+	</group>
 
 	<node pkg="apple_modid_ros" name="grasp_pose_estimator" type="grasp_pose_estimation.py">
+	<remap from="wrench" to="$(arg wrench_topic)"/>
 	</node>
 
-	<node pkg="apple_modid_ros" name="apple_pos_publisher" type="apple_pos_calculator.py">
+	<node pkg="apple_modid_ros" name="apple_pos_publisher" type="apple_pos_calculator.py" output="screen">
+	<remap from="pose" to="$(arg pose_topic)"/>
+	</node>
+
+	<node pkg="apple_modid_ros" name="constant_regression" type="regression_always_on.py">
 	</node>
 
 	<node pkg="apple_modid_ros" name="apple_regression" type="find_params.py" output="screen">
-	<remap from="regression_trigger_topic" to="$(arg regression_trigger)"/>
+	<remap from="regression_trigger_topic" to="run_regression"/>
+	<remap from="wrench" to="$(arg wrench_topic)"/>
 	</node>
 
 </launch>

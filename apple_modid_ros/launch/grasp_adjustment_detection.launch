@@ -23,4 +23,8 @@ It attaches the filtered nodes to a grasp adjustment detector.
 	<node pkg="apple_modid_ros" name="grasp_adjustment_detector" type="online_adjustment_detection.py">
 	</node>
 
+	<node pkg="apple_modid_ros" name="applehand_regression_trigger" type="applehand_regression_trigger.py">
+	</node>
+
+
 </launch>
