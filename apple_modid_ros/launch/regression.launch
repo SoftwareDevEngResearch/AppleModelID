@@ -7,9 +7,9 @@ This launch file runs the nodes necessary for performing regression with interru
 	<arg name="regression_trigger" />
 	<arg name="pose_topic" default="ur5e_pose" />
 	<arg name="wrench_topic" default="wrench" />
-	<arg name="use_ur5e" default=True />
+	<arg name="use_ur5e" default="true" />
 	
-	<group if="$(eval arg("use_ur5e"))">
+	<group if="$(arg use_ur5e)">
 		<node pkg="apple_modid_ros" name="ur5e_pose_publisher" type="ur5e_pose_publisher.py">
 		</node>
 	</group>

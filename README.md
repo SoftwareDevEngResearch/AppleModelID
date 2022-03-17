@@ -10,7 +10,7 @@ To use the code in this repository, you should use a computer running Ubuntu and
 
 This repository should be cloned to your ROS workspace folder under the src subfolder. For instructions on setting up a ROS workspace, you can go to [http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment).
 
-Additionally, this package requires scipy and numpy todo: put version info and links.
+Additionally, this package requires scipy and numpy. Any version should work, but the programs were designed using scipy version 1.2.3 and numpy version 1.16.6.
 
 ### Robot
 
@@ -47,14 +47,6 @@ To publish a trigger topic based on slip detection for the apple hand, run
 roslaunch apple_modid_ros grasp_adjustment_detection.launch
 ```
 
-todo:correct this
-
-To run only the grasp adjustment detection for the applehand, run
-
-```
-roslaunch apple_modid_ros grasp_adjustment_detection.launch
-```
-
 or, if a webcam is setup, you can run
 
 ```
@@ -71,17 +63,40 @@ use_ur5e:=false pose_topic:=your_topic_name
 
 after the roslaunch command. Replace your_topic_name with the name of the topic which contains the pose information for the robot's wrist.
 
-### Defining ROSParams
+Similarly, if the topic containing the wrenches on the robot is named anything other than "wrench", you will need to remap the wrench topic using:
 
-Many launch files require a .yaml file as input. In these files you will need to define the following fields:
+```
+wrench:=wrench_topic_name
+```
 
-pose_topic: this is the name of the ROS topic that contains the pose information for the wrist of the robot. 
-wrench_topic: this is the name of the ROS topic that contains the force/torque data from the wrist.
-
-### using applehand
-
-### using the UR5e
-
-### creating a user-defined trigger topic
+as an additional argument, where wrench_topic_name is the name of your wrench topic.
 
 
+### Using the IMML AppleHand
+
+To process topics from the IMML Applehand, you will need to have the applehand ROS package installed. The package, as well as instructions for how to use the hand, are located at [https://github.com/cravetzm/Apple-Hand](https://github.com/cravetzm/Apple-Hand).
+
+### Using the UR5e
+
+To use the UR5e with this software, you will need the appropriate ROS drivers, available (with instructions) at [https://github.com/UniversalRobots/Universal_Robots_ROS_Driver](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver). Running the following will publish the needed topics, provided that the robot is on and has an established connection with the computer:
+
+```
+roslaunch ur_robot_driver ur5e_bringup.launch robot_ip:=IP_ADDRESS
+```
+
+where IP address is the address where the robot can be reached.
+
+Unlike the AppleHand, no software installation is required to play back topics from the UR5e that were recorded in a rosbag file. Only built-in rostopics are published by these drivers.
+
+
+### Running the Examples
+
+Data from an example pick is included in the form of two rosbag files. all_topics_example.bag contains pose, wrench, and applehand topics. After running any of the provided launch files (except visualize_grasp_adjustment.launch, because the webcam topics werer too large for github), playback the data using:
+
+```
+rosbag play all_topics_example.bag
+```
+
+to play back the data. The [rostopic command line tool](http://wiki.ros.org/rostopic) can be used to check the parameter estimates at any timestep, or the [rosbag command line tool](http://wiki.ros.org/rosbag) can be used to record this information for the whole file.
+
+The second included rosbag file, no_hand_example.bag contains the same data but with the applehand topics removed. This allows for testing basic_regression.launch or regression.launch without installing the applehand package. Like with the other bagfile, simply run one of these two launch files and then use "rosbag play" in the command line.

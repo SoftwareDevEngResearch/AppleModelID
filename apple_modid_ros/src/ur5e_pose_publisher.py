@@ -3,6 +3,7 @@
 import rospy
 
 import numpy as np
+import scipy
 from scipy.spatial.transform import Rotation as R
 from geometry_msgs.msg import Pose
 from sensor_msgs.msg import JointState
@@ -50,6 +51,15 @@ class PosePublisher:
 
 		return pose
 
+	def old_scipy_version(self):
+		
+		version = [int(n) for n in scipy.__version__.split(".")]
+		
+		if version[0] < 1 or (version[0]==1 and version[1] < 4):
+			return True
+		else:
+			return False
+
 	def pose_from_topic(self, msg):
 
 		joint_angles = msg.position
@@ -59,7 +69,11 @@ class PosePublisher:
 		self.curr_pose.position.y = pose_matrix[1,3]
 		self.curr_pose.position.z = pose_matrix[2,3]
 
-		r = R.from_dcm(pose_matrix[0:3,0:3])
+		if self.old_scipy_version:
+			r = R.from_dcm(pose_matrix[0:3,0:3])
+		else:
+			r = R.from_matrix(pose_matrix[0:3,0:3])
+
 		quat = r.as_quat()
 
 		self.curr_pose.orientation.x = quat[0]

@@ -13,11 +13,23 @@ class ApplePositionCalculator:
 		self.position = Point()
 		self.l = 0
 
+		def old_scipy_version(self):
+		
+		version = [int(n) for n in scipy.__version__.split(".")]
+		
+		if version[0] < 1 or (version[0]==1 and version[1] < 4):
+			return True
+		else:
+			return False
+
 	def calculate_position(self, msg):
 		
 		try:
 			r = R.from_quat([msg.orientation.x,msg.orientation.y,msg.orientation.z,msg.orientation.w])
-			z_h = r.as_dcm()[0:3,2]
+			if self.old_scipy_version():
+				z_h = r.as_dcm()[0:3,2]
+			else:
+				z_h = r.as_matrix()[0:3,2]
 			v_hand = np.array([msg.position.x,msg.position.y,msg.position.z])
 			v_apple = v_hand+self.l*z_h
 

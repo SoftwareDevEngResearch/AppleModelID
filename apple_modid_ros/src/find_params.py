@@ -4,7 +4,7 @@ import rospy
 
 import numpy as np
 
-from geometry_msgs.msg import Point, WrenchStamped
+from geometry_msgs.msg import Point, WrenchStamped, Vector3
 from std_msgs.msg import Bool
 from copy import deepcopy
 
@@ -76,7 +76,6 @@ class AppleRegression:
 					self.param_est[key] = q0_est
 					self.k_est[key] = k_est
 
-					print("finished an estimate")
 
 
 	def get_publishable_values(self):
@@ -110,8 +109,6 @@ class AppleRegression:
 if __name__ == '__main__':
 
 	rospy.init_node('apple_regression')
-
-	print("Output to terminal works!") #!!! debugging
 
 	regression_object = AppleRegression()
 
