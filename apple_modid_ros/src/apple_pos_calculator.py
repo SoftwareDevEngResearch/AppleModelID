@@ -13,7 +13,7 @@ class ApplePositionCalculator:
 		self.position = Point()
 		self.l = 0
 
-		def old_scipy_version(self):
+	def old_scipy_version(self):
 		
 		version = [int(n) for n in scipy.__version__.split(".")]
 		
