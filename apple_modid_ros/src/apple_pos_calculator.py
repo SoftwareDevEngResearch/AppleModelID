@@ -3,6 +3,7 @@
 import rospy
 
 import numpy as np
+import scipy
 from scipy.spatial.transform import Rotation as R
 from geometry_msgs.msg import Pose, Point
 from std_msgs.msg import Float64
